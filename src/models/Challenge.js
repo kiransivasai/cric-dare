@@ -5,7 +5,7 @@ const QuestionSchema = new mongoose.Schema(
     id: { type: String, required: true },
     type: {
       type: String,
-      enum: ["winner", "mom", "highestScorer", "mostWickets", "totalRuns", "sixes", "fours"],
+      enum: ["winner", "mom", "highestScorer", "mostWickets", "totalRuns", "sixes", "fours", "custom"],
       required: true,
     },
     label: { type: String, required: true },

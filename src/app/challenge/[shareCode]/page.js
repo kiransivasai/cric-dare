@@ -245,6 +245,11 @@ export default function ChallengePage() {
           )}
 
           <div style={{ marginTop: "var(--space-xl)", display: "flex", gap: "var(--space-md)", justifyContent: "center", flexWrap: "wrap" }}>
+            {isCreator && !isResolved && isPastDeadline && (
+              <Link href={`/challenge/${shareCode}/resolve`} className="btn btn-primary" style={{ background: "var(--gradient-accent)" }}>
+                🏆 Resolve Challenge
+              </Link>
+            )}
             {isResolved && (
               <Link href={`/challenge/${shareCode}/results`} className="btn btn-primary">
                 🏆 View Results

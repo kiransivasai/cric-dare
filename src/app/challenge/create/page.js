@@ -75,6 +75,9 @@ export default function CreateChallengePage() {
   // Custom Dropdown UI state
   const [openDropdown, setOpenDropdown] = useState(null);
 
+  // Custom questions added by the creator
+  const [customQuestions, setCustomQuestions] = useState([]);
+
   // Map to hold the creator's initial picks during challenge creation
   const [creatorPicks, setCreatorPicks] = useState({
     q1: "",
@@ -85,6 +88,75 @@ export default function CreateChallengePage() {
     q6: "",
     q7: ""
   });
+
+  // Custom question helpers
+  const addCustomQuestion = () => {
+    const nextId = `q${8 + customQuestions.length}`;
+    setCustomQuestions(prev => [...prev, {
+      id: nextId,
+      type: "custom",
+      label: "",
+      optionType: "text", // "text" or "player"
+      options: ["", ""],
+    }]);
+    setCreatorPicks(prev => ({ ...prev, [nextId]: "" }));
+  };
+
+  const removeCustomQuestion = (index) => {
+    const removed = customQuestions[index];
+    setCustomQuestions(prev => prev.filter((_, i) => i !== index));
+    setCreatorPicks(prev => {
+      const updated = { ...prev };
+      delete updated[removed.id];
+      return updated;
+    });
+  };
+
+  const updateCustomQuestionLabel = (index, label) => {
+    setCustomQuestions(prev => prev.map((q, i) => i === index ? { ...q, label } : q));
+  };
+
+  const updateCustomOptionType = (index, optionType) => {
+    setCustomQuestions(prev => prev.map((q, i) => i === index ? { ...q, optionType, options: ["", ""] } : q));
+    // Reset creator pick for this question
+    setCreatorPicks(prev => ({ ...prev, [customQuestions[index].id]: "" }));
+  };
+
+  const updateCustomTextOption = (qIndex, optIndex, value) => {
+    setCustomQuestions(prev => prev.map((q, i) => {
+      if (i !== qIndex) return q;
+      const newOpts = [...q.options];
+      newOpts[optIndex] = value;
+      return { ...q, options: newOpts };
+    }));
+  };
+
+  const updateCustomPlayerOption = (qIndex, optIndex, playerName) => {
+    setCustomQuestions(prev => prev.map((q, i) => {
+      if (i !== qIndex) return q;
+      const newOpts = [...q.options];
+      if (newOpts.includes(playerName)) {
+        alert(`${playerName} is already added.`);
+        return q;
+      }
+      newOpts[optIndex] = playerName;
+      return { ...q, options: newOpts };
+    }));
+  };
+
+  const addCustomOption = (qIndex) => {
+    setCustomQuestions(prev => prev.map((q, i) => {
+      if (i !== qIndex || q.options.length >= 10) return q;
+      return { ...q, options: [...q.options, ""] };
+    }));
+  };
+
+  const removeCustomOption = (qIndex, optIndex) => {
+    setCustomQuestions(prev => prev.map((q, i) => {
+      if (i !== qIndex || q.options.length <= 2) return q;
+      return { ...q, options: q.options.filter((_, oi) => oi !== optIndex) };
+    }));
+  };
 
   useEffect(() => {
     fetchMatches();
@@ -330,6 +402,19 @@ export default function CreateChallengePage() {
         }
     }
 
+    // Validate custom questions
+    for (const cq of customQuestions) {
+      if (!cq.label.trim()) {
+        setError("Please enter a label for all custom questions.");
+        return;
+      }
+      const validOpts = cq.options.filter(o => typeof o === 'string' && o.trim() !== "");
+      if (validOpts.length < 2) {
+        setError(`Please add at least 2 options for "${cq.label}"`);
+        return;
+      }
+    }
+
     if (!deadline) {
       setError("Please set a picks deadline");
       return;
@@ -346,10 +431,10 @@ export default function CreateChallengePage() {
       }
     }
 
-    // Validate creator picks
+    // Validate creator picks (including custom questions)
     const allPicksMade = Object.values(creatorPicks).every(p => p !== "");
     if (!allPicksMade) {
-      setError("You must select your own picks for all 7 questions before creating the challenge.");
+      setError("You must select your own picks for all questions before creating the challenge.");
       return;
     }
 
@@ -366,12 +451,22 @@ export default function CreateChallengePage() {
         return q;
       });
 
+      // Re-number and clean custom questions
+      const cleanedCustom = customQuestions.map((cq, i) => ({
+        id: `q${8 + i}`,
+        type: "custom",
+        label: cq.label,
+        options: cq.options.filter(o => typeof o === 'string' && o.trim() !== ""),
+      }));
+
+      const allQuestions = [...cleanedQuestions, ...cleanedCustom];
+
       const res = await fetch("/api/challenge/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           match: selectedMatch,
-          questions: cleanedQuestions,
+          questions: allQuestions,
           picksLockedBefore: deadline,
           creatorAnswers: creatorPicks
         }),
@@ -754,6 +849,112 @@ export default function CreateChallengePage() {
               </div>
             </div>
           ))}
+          {/* Custom Questions */}
+          {customQuestions.map((cq, cqIdx) => (
+            <div key={cq.id} className="question-card" style={{ borderLeft: "3px solid var(--clr-accent)" }}>
+              <div className="question-card-header">
+                <span className="question-number" style={{ background: "var(--gradient-accent)" }}>{8 + cqIdx}</span>
+                <input
+                  className="form-input"
+                  placeholder="Enter your custom question..."
+                  value={cq.label}
+                  onChange={(e) => updateCustomQuestionLabel(cqIdx, e.target.value)}
+                  style={{ flex: 1, fontSize: "1rem", fontWeight: 600 }}
+                />
+                <button className="btn-remove" onClick={() => removeCustomQuestion(cqIdx)} title="Remove question" style={{ marginLeft: "8px" }}>✕</button>
+              </div>
+
+              {/* Option type toggle */}
+              <div style={{ display: "flex", gap: "8px", marginBottom: "var(--space-sm)" }}>
+                <button
+                  className={`btn btn-sm ${cq.optionType === "text" ? "btn-primary" : "btn-secondary"}`}
+                  onClick={() => updateCustomOptionType(cqIdx, "text")}
+                  style={{ fontSize: "0.8rem" }}
+                >
+                  📝 Text Options
+                </button>
+                <button
+                  className={`btn btn-sm ${cq.optionType === "player" ? "btn-primary" : "btn-secondary"}`}
+                  onClick={() => updateCustomOptionType(cqIdx, "player")}
+                  style={{ fontSize: "0.8rem" }}
+                >
+                  🏏 Player Dropdown
+                </button>
+              </div>
+
+              {/* Options editor */}
+              <div className="option-input-grid">
+                {cq.options.map((opt, optIdx) => (
+                  <div key={optIdx} className="option-input-item" style={{ position: "relative" }}>
+                    {cq.optionType === "text" ? (
+                      <input
+                        className="form-input option-input"
+                        placeholder={`Option ${optIdx + 1}`}
+                        value={opt}
+                        onChange={(e) => updateCustomTextOption(cqIdx, optIdx, e.target.value)}
+                      />
+                    ) : (
+                      <FilterablePlayerDropdown
+                        options={squads}
+                        value={opt}
+                        placeholder="Select Player..."
+                        isOpen={openDropdown === `${cq.id}_copt_${optIdx}`}
+                        onToggle={(isOpen) => setOpenDropdown(isOpen ? `${cq.id}_copt_${optIdx}` : null)}
+                        onSelect={(_, playerName) => updateCustomPlayerOption(cqIdx, optIdx, playerName)}
+                      />
+                    )}
+                    {cq.options.length > 2 && (
+                      <button className="btn-remove" onClick={() => removeCustomOption(cqIdx, optIdx)} title="Remove option">✕</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {cq.options.length < 10 && (
+                <button className="add-option-btn" onClick={() => addCustomOption(cqIdx)}>
+                  + Add Option
+                </button>
+              )}
+
+              {/* Creator pick for this custom question */}
+              <div className="creator-pick-section" style={{ marginTop: "var(--space-md)", paddingTop: "var(--space-sm)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "0.85rem", color: "var(--clr-primary-light)" }}>⭐ Your Prediction (Locked)</label>
+                <div className="custom-dropdown-container">
+                  <div
+                    className={`custom-dropdown-header ${openDropdown === cq.id ? "open" : ""} ${creatorPicks[cq.id] ? "has-value" : ""}`}
+                    onClick={() => setOpenDropdown(openDropdown === cq.id ? null : cq.id)}
+                  >
+                    <span>{creatorPicks[cq.id] || "— Select Your Answer —"}</span>
+                    <span className="dropdown-arrow">▼</span>
+                  </div>
+                  {openDropdown === cq.id && (
+                    <div className="custom-dropdown-list">
+                      {cq.options.filter(o => typeof o === 'string' && o.trim() !== "").map(opt => (
+                        <div
+                          key={opt}
+                          className={`custom-dropdown-option ${creatorPicks[cq.id] === opt ? "selected" : ""}`}
+                          onClick={() => {
+                            setCreatorPicks({ ...creatorPicks, [cq.id]: opt });
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Add Custom Question Button */}
+          <button
+            className="add-option-btn"
+            onClick={addCustomQuestion}
+            style={{ width: "100%", padding: "var(--space-md)", fontSize: "1rem", borderStyle: "dashed", marginBottom: "var(--space-md)" }}
+          >
+            ➕ Add Custom Question
+          </button>
 
           {/* Deadline — Custom styled */}
           <div className="question-card deadline-card">

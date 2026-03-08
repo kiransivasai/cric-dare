@@ -48,8 +48,16 @@ export async function POST(request, { params }) {
     // Score all picks
     const picks = await Pick.find({ challengeId: challenge._id });
 
+    // Convert actualResults array to a lookup map {questionId: answer}
+    const resultsMap = {};
+    if (Array.isArray(actualResults)) {
+      actualResults.forEach(r => { resultsMap[r.questionId] = r.answer; });
+    } else {
+      Object.assign(resultsMap, actualResults);
+    }
+
     for (const pick of picks) {
-      const score = scorePicks(pick.answers, actualResults, challenge.questions);
+      const score = scorePicks(pick.answers, resultsMap, challenge.questions);
       await Pick.findByIdAndUpdate(pick._id, { score });
       // Update user stats
       await User.findByIdAndUpdate(pick.userId, {

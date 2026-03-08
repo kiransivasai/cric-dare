@@ -91,25 +91,39 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="challenges-grid">
-            {challenges.created.map((c) => (
-              <Link
-                key={c.shareCode}
-                href={c.status === "resolved" ? `/challenge/${c.shareCode}/results` : `/challenge/${c.shareCode}`}
-                className="challenge-card"
-              >
-                <div className="challenge-card-teams">{c.match.title}</div>
-                <div className="challenge-card-meta">
-                  <span className="meta-tag">📅 {new Date(c.match.matchDate).toLocaleDateString()}</span>
-                  <span className="meta-tag">📍 {c.match.venue || "TBD"}</span>
-                  {c.participantCount > 0 && (
-                    <span className="meta-tag">👥 {c.participantCount} players</span>
+            {challenges.created.map((c) => {
+              const isPastDeadline = new Date() > new Date(c.picksLockedBefore);
+              const canResolve = isPastDeadline && c.status !== "resolved";
+              return (
+                <div key={c.shareCode} className="challenge-card" style={{ display: "flex", flexDirection: "column" }}>
+                  <Link
+                    href={c.status === "resolved" ? `/challenge/${c.shareCode}/results` : `/challenge/${c.shareCode}`}
+                    style={{ flex: 1, textDecoration: "none", color: "inherit" }}
+                  >
+                    <div className="challenge-card-teams">{c.match.title}</div>
+                    <div className="challenge-card-meta">
+                      <span className="meta-tag">📅 {new Date(c.match.matchDate).toLocaleDateString()}</span>
+                      <span className="meta-tag">📍 {c.match.venue || "TBD"}</span>
+                      {c.participantCount > 0 && (
+                        <span className="meta-tag">👥 {c.participantCount} players</span>
+                      )}
+                    </div>
+                    <span className={`challenge-card-status status-${c.status}`}>
+                      {c.status === "open" ? "🟢 Open" : c.status === "locked" ? "🔒 Locked" : "✅ Resolved"}
+                    </span>
+                  </Link>
+                  {canResolve && (
+                    <Link
+                      href={`/challenge/${c.shareCode}/resolve`}
+                      className="btn btn-sm"
+                      style={{ marginTop: "var(--space-sm)", background: "var(--gradient-accent)", color: "#000", fontWeight: 600, textAlign: "center", borderRadius: "var(--radius-md)", padding: "6px 12px", fontSize: "0.85rem", textDecoration: "none" }}
+                    >
+                      🏆 Resolve
+                    </Link>
                   )}
                 </div>
-                <span className={`challenge-card-status status-${c.status}`}>
-                  {c.status === "open" ? "🟢 Open" : c.status === "locked" ? "🔒 Locked" : "✅ Resolved"}
-                </span>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

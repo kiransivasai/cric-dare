@@ -1,6 +1,7 @@
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata = {
   title: "CricDare — Cricket Prediction Challenges",
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
+          <ScrollToTop />
           <Navbar />
           <main>{children}</main>
         </AuthProvider>
