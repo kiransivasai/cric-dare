@@ -163,7 +163,8 @@ export default function ChallengePage() {
     );
   }
 
-  const isPastDeadline = new Date() > new Date(challenge.picksLockedBefore);
+  const isDebug = process.env.NEXT_PUBLIC_DEBUG === "true";
+  const isPastDeadline = isDebug || new Date() > new Date(challenge.picksLockedBefore);
   const isResolved = challenge.status === "resolved";
 
   // Already submitted

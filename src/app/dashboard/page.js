@@ -92,7 +92,8 @@ export default function DashboardPage() {
         ) : (
           <div className="challenges-grid">
             {challenges.created.map((c) => {
-              const isPastDeadline = new Date() > new Date(c.picksLockedBefore);
+              const isDebug = process.env.NEXT_PUBLIC_DEBUG === "true";
+              const isPastDeadline = isDebug || new Date() > new Date(c.picksLockedBefore);
               const canResolve = isPastDeadline && c.status !== "resolved";
               return (
                 <div key={c.shareCode} className="challenge-card" style={{ display: "flex", flexDirection: "column" }}>
@@ -156,7 +157,7 @@ export default function DashboardPage() {
                   </span>
                   {c.myScore !== null && c.myScore !== undefined && (
                     <span className="meta-tag" style={{ color: "var(--clr-primary-light)", fontWeight: 600 }}>
-                      Score: {c.myScore}/5
+                      Score: {c.myScore}/{c.questionCount || 7}
                     </span>
                   )}
                 </div>

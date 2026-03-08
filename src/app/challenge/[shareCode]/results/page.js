@@ -56,7 +56,17 @@ export default function ResultsPage() {
 
   const { challenge, picks } = data;
   const isResolved = challenge.status === "resolved";
-  const actualResults = challenge.resolution?.actualResults || {};
+
+  // actualResults may be stored as an array [{questionId, answer}] or a dict {q1: "India"}
+  const rawResults = challenge.resolution?.actualResults;
+  const actualResults = {};
+  if (Array.isArray(rawResults)) {
+    rawResults.forEach(r => { actualResults[r.questionId] = r.answer; });
+  } else if (rawResults && typeof rawResults === "object") {
+    Object.assign(actualResults, rawResults);
+  }
+
+  const totalQuestions = challenge.questions?.length || 5;
 
   // Sort picks by score (descending)
   const sortedPicks = [...picks].sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
@@ -95,14 +105,14 @@ export default function ResultsPage() {
                   {isResolved && pick.score !== null ? (
                     <>
                       <div className="score-dots">
-                        {[0, 1, 2, 3, 4].map((i) => (
+                        {Array.from({ length: totalQuestions }).map((_, i) => (
                           <div
                             key={i}
                             className={`score-dot ${i < pick.score ? "correct" : ""}`}
                           />
                         ))}
                       </div>
-                      <span className="score-text">{pick.score}/5</span>
+                      <span className="score-text">{pick.score}/{totalQuestions}</span>
                     </>
                   ) : (
                     <span className="score-text" style={{ color: "var(--clr-text-muted)" }}>

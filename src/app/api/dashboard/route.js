@@ -58,6 +58,7 @@ export async function GET() {
           status: challenge.status,
           createdBy: challenge.createdBy,
           myScore: pick.score,
+          questionCount: challenge.questions?.length || 7,
         };
       })
     );

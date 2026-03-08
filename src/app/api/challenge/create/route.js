@@ -48,10 +48,12 @@ export async function POST(request) {
     });
 
     // Automatically submit the Creator's picks
-    const formattedCreatorPicks = questions.map((q) => ({
-      questionId: q.id,
-      pick: creatorAnswers[q.id]
-    }));
+    const formattedCreatorPicks = questions
+      .filter((q) => creatorAnswers[q.id]) // only include questions with a creator answer
+      .map((q) => ({
+        questionId: q.id,
+        pick: creatorAnswers[q.id]
+      }));
 
     await Pick.create({
       challengeId: challenge._id,

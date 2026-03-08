@@ -118,8 +118,6 @@ export default function CreateChallengePage() {
 
   const updateCustomOptionType = (index, optionType) => {
     setCustomQuestions(prev => prev.map((q, i) => i === index ? { ...q, optionType, options: ["", ""] } : q));
-    // Reset creator pick for this question
-    setCreatorPicks(prev => ({ ...prev, [customQuestions[index].id]: "" }));
   };
 
   const updateCustomTextOption = (qIndex, optIndex, value) => {
@@ -859,26 +857,34 @@ export default function CreateChallengePage() {
                   placeholder="Enter your custom question..."
                   value={cq.label}
                   onChange={(e) => updateCustomQuestionLabel(cqIdx, e.target.value)}
-                  style={{ flex: 1, fontSize: "1rem", fontWeight: 600 }}
+                  style={{ flex: 1, fontSize: "0.95rem", fontWeight: 600 }}
                 />
                 <button className="btn-remove" onClick={() => removeCustomQuestion(cqIdx)} title="Remove question" style={{ marginLeft: "8px" }}>✕</button>
               </div>
 
-              {/* Option type toggle */}
-              <div style={{ display: "flex", gap: "8px", marginBottom: "var(--space-sm)" }}>
+              {/* Compact option type toggle */}
+              <div style={{ display: "inline-flex", gap: "0", borderRadius: "8px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", marginBottom: "var(--space-sm)" }}>
                 <button
-                  className={`btn btn-sm ${cq.optionType === "text" ? "btn-primary" : "btn-secondary"}`}
                   onClick={() => updateCustomOptionType(cqIdx, "text")}
-                  style={{ fontSize: "0.8rem" }}
+                  style={{
+                    padding: "6px 14px", fontSize: "0.78rem", border: "none", cursor: "pointer",
+                    background: cq.optionType === "text" ? "var(--clr-primary)" : "transparent",
+                    color: cq.optionType === "text" ? "#fff" : "var(--clr-text-secondary)",
+                    transition: "all 0.2s"
+                  }}
                 >
-                  📝 Text Options
+                  📝 Text
                 </button>
                 <button
-                  className={`btn btn-sm ${cq.optionType === "player" ? "btn-primary" : "btn-secondary"}`}
                   onClick={() => updateCustomOptionType(cqIdx, "player")}
-                  style={{ fontSize: "0.8rem" }}
+                  style={{
+                    padding: "6px 14px", fontSize: "0.78rem", border: "none", borderLeft: "1px solid rgba(255,255,255,0.1)", cursor: "pointer",
+                    background: cq.optionType === "player" ? "var(--clr-primary)" : "transparent",
+                    color: cq.optionType === "player" ? "#fff" : "var(--clr-text-secondary)",
+                    transition: "all 0.2s"
+                  }}
                 >
-                  🏏 Player Dropdown
+                  🏏 Player
                 </button>
               </div>
 
@@ -914,8 +920,7 @@ export default function CreateChallengePage() {
                   + Add Option
                 </button>
               )}
-
-              {/* Creator pick for this custom question */}
+              {/* Creator's prediction for this custom question */}
               <div className="creator-pick-section" style={{ marginTop: "var(--space-md)", paddingTop: "var(--space-sm)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
                 <label style={{ display: "block", marginBottom: "8px", fontSize: "0.85rem", color: "var(--clr-primary-light)" }}>⭐ Your Prediction (Locked)</label>
                 <div className="custom-dropdown-container">
@@ -943,6 +948,9 @@ export default function CreateChallengePage() {
                     </div>
                   )}
                 </div>
+                <p style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)", marginTop: "6px", fontStyle: "italic" }}>
+                  💡 Correct answer for scoring will be entered after the match via the Resolve page.
+                </p>
               </div>
             </div>
           ))}
