@@ -18,77 +18,90 @@ export default function Navbar() {
   if (isAuthPage) return null;
 
   return (
-    <nav className="navbar">
-      <div className="navbar-inner">
+    <>
+      {/* --- DESKTOP TOP NAV --- */}
+      <nav className="navbar desktop-only">
+        <div className="navbar-inner">
+          <Link href="/" className="navbar-brand">
+            <span className="brand-icon">🏏</span>
+            <span className="brand-text">CricDare</span>
+          </Link>
+
+          <div className="navbar-links">
+            {session ? (
+              <>
+                <Link href="/dashboard" className={`nav-link ${pathname === "/dashboard" ? "active" : ""}`}>
+                  Dashboard
+                </Link>
+                <Link href="/challenge/create" className="nav-link nav-cta">
+                  🎯 Create Dare
+                </Link>
+                {session.user?.isAdmin && (
+                  <Link href="/admin/settings" className={`nav-link ${pathname === "/admin/settings" ? "active" : ""}`}>
+                    ⚙️ Admin
+                  </Link>
+                )}
+                <div className="nav-user-section">
+                  <span className="nav-username">@{session.user?.username}</span>
+                  <button className="nav-logout" onClick={() => signOut({ callbackUrl: "/" })}>
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login" className="nav-link">Login</Link>
+                <Link href="/auth/signup" className="nav-link nav-cta">Sign Up</Link>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* --- MOBILE TOP HEADER (Logo Only) --- */}
+      <div className="mobile-only mobile-header">
         <Link href="/" className="navbar-brand">
           <span className="brand-icon">🏏</span>
           <span className="brand-text">CricDare</span>
         </Link>
-
-        <button
-          className="menu-toggle"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          <span className={`hamburger ${menuOpen ? "open" : ""}`} />
-        </button>
-
-        <div className={`navbar-links ${menuOpen ? "active" : ""}`}>
-          {session ? (
-            <>
-              <Link
-                href="/dashboard"
-                className={`nav-link ${pathname === "/dashboard" ? "active" : ""}`}
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/challenge/create"
-                className="nav-link nav-cta"
-                onClick={() => setMenuOpen(false)}
-              >
-                🎯 Create Dare
-              </Link>
-              {session.user?.isAdmin && (
-                <Link
-                  href="/admin/settings"
-                  className={`nav-link ${pathname === "/admin/settings" ? "active" : ""}`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  ⚙️ Admin
-                </Link>
-              )}
-              <div className="nav-user-section">
-                <span className="nav-username">@{session.user?.username}</span>
-                <button
-                  className="nav-logout"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                >
-                  Logout
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/auth/login"
-                className="nav-link"
-                onClick={() => setMenuOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="nav-link nav-cta"
-                onClick={() => setMenuOpen(false)}
-              >
-                Sign Up
-              </Link>
-            </>
-          )}
-        </div>
       </div>
-    </nav>
+
+      {/* --- MOBILE BOTTOM NAV --- */}
+      <nav className="mobile-bottom-nav mobile-only">
+        {session ? (
+          <>
+            <Link href="/dashboard" className={`nav-link ${pathname === "/dashboard" ? "active" : ""}`}>
+              <span className="nav-icon">📊</span>
+              <span className="nav-text">Dashboard</span>
+            </Link>
+            <Link href="/challenge/create" className="nav-link nav-cta">
+              <span className="nav-icon">🎯</span>
+              <span className="nav-text">Create</span>
+            </Link>
+            {session.user?.isAdmin && (
+              <Link href="/admin/settings" className={`nav-link ${pathname === "/admin/settings" ? "active" : ""}`}>
+                <span className="nav-icon">⚙️</span>
+                <span className="nav-text">Admin</span>
+              </Link>
+            )}
+            <Link href="/profile" className={`nav-link ${pathname === "/profile" ? "active" : ""}`}>
+              <span className="nav-icon">👤</span>
+              <span className="nav-text">Profile</span>
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link href="/auth/login" className="nav-link">
+              <span className="nav-icon">🔑</span>
+              <span className="nav-text">Login</span>
+            </Link>
+            <Link href="/auth/signup" className="nav-link nav-cta">
+              <span className="nav-icon">✨</span>
+              <span className="nav-text">Sign Up</span>
+            </Link>
+          </>
+        )}
+      </nav>
+    </>
   );
 }

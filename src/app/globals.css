@@ -85,7 +85,6 @@
 }
 
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -1573,56 +1572,113 @@ img {
   padding: 0 var(--space-lg);
 }
 
+/* Hide mobile-specific elements on desktop by default */
+.mobile-only {
+  display: none !important;
+}
+
 /* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {
   .menu-toggle {
-    display: flex;
+    display: none; /* Hide hamburger entirely, we use bottom nav now */
   }
 
-  .navbar-links {
-    position: fixed;
-    top: 64px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #0a0e17;
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: flex !important;
+  }
+
+  .navbar {
+    border-bottom: none;
+  }
+
+  body {
+    padding-bottom: 80px; /* Space for bottom nav */
+  }
+
+  .mobile-header {
+    position: sticky;
+    top: 0;
+    height: 64px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 14, 23, 0.8);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.5);
-    flex-direction: column;
-    align-items: stretch;
-    padding: var(--space-lg);
-    gap: var(--space-sm);
-    transform: translateX(100%);
-    transition: transform var(--transition-base);
-    z-index: 99;
-    overflow-y: auto;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 100;
   }
 
-  .navbar-links.active {
-    transform: translateX(0);
+  .mobile-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0;
+    right: 0;
+    background: rgba(10, 14, 23, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+    display: flex !important;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 var(--space-sm);
+    padding-bottom: env(safe-area-inset-bottom);
+    height: 70px;
+    z-index: 1000;
   }
 
   .nav-link {
-    padding: var(--space-md);
-    font-size: 1rem;
-    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0;
+    background: transparent !important;
+    border-radius: 0;
+    height: 100%;
+    flex: 1;
+    color: var(--clr-text-secondary);
   }
 
   .nav-cta {
-    text-align: center;
-    border-radius: var(--radius-md) !important;
+    background: transparent !important;
+    color: var(--clr-primary-light) !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .nav-cta:hover {
+    box-shadow: none !important;
+    transform: none;
+  }
+
+  .nav-link.active, .nav-link:hover {
+    color: var(--clr-primary-light);
+    background: transparent !important;
+  }
+
+  .nav-icon {
+    font-size: 1.3rem;
+    display: block !important;
+  }
+
+  .nav-text {
+    font-size: 0.65rem;
+    font-weight: 600;
   }
 
   .nav-user-section {
-    margin-left: 0;
-    padding-left: 0;
-    border-left: none;
-    padding-top: var(--space-md);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    flex-direction: column;
-    gap: var(--space-md);
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: contents; /* Flattens to allow the logout button to sit in the flex row */
   }
 
   .hero-title {
@@ -1641,6 +1697,15 @@ img {
 
   .challenges-grid {
     grid-template-columns: 1fr;
+  }
+
+  .brand-icon {
+    display: none;
+  }
+
+  .navbar-inner {
+    justify-content: center; /* Center the logo on mobile since there is no toggle anymore */
+    padding: 0;
   }
 
   .match-grid {
@@ -2292,16 +2357,16 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--gradient-primary);
   color: white;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   cursor: pointer;
-  z-index: 100;
+  z-index: 9999;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.3s, transform 0.3s;
@@ -2310,6 +2375,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .scroll-to-top.visible {
@@ -2321,4 +2387,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .scroll-to-top:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+@media (max-width: 768px) {
+  .scroll-to-top {
+    bottom: 90px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
 }

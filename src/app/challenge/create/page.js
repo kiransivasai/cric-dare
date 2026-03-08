@@ -389,6 +389,12 @@ export default function CreateChallengePage() {
     };
   };
 
+  // Helper to change steps and reset scroll
+  const goToStep = (newStep) => {
+    setStep(newStep);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleCreate = async () => {
     setError("");
 
@@ -519,8 +525,6 @@ export default function CreateChallengePage() {
         </div>
       </div>
 
-      {error && <div className="form-error">{error}</div>}
-
       {/* Step 1: Pick a Match */}
       {step === 1 && (
         <div className="animate-slide-up">
@@ -586,15 +590,18 @@ export default function CreateChallengePage() {
               ))}
             </div>
           )}
-          <div className="wizard-nav">
-            <div />
-            <button
-              className="btn btn-primary"
-              disabled={!selectedMatch}
-              onClick={() => setStep(2)}
-            >
-              Next →
-            </button>
+          <div className="wizard-nav" style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+            {error && <div className="form-error" style={{ width: "100%", margin: "0" }}>{error}</div>}
+            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+              <div />
+              <button
+                className="btn btn-primary"
+                disabled={!selectedMatch}
+                onClick={() => goToStep(2)}
+              >
+                Next →
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1019,13 +1026,16 @@ export default function CreateChallengePage() {
             </p>
           </div>
 
-          <div className="wizard-nav">
-            <button className="btn btn-secondary" onClick={() => setStep(1)}>
-              ← Back
-            </button>
-            <button className="btn btn-primary" onClick={handleCreate} disabled={loading || squadsLoading}>
-              {loading ? "Creating..." : "Create Dare 🚀"}
-            </button>
+          <div className="wizard-nav" style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+            {error && <div className="form-error" style={{ width: "100%", margin: "0" }}>{error}</div>}
+            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+              <button className="btn btn-secondary" onClick={() => goToStep(1)}>
+                ← Back
+              </button>
+              <button className="btn btn-primary" onClick={handleCreate} disabled={loading || squadsLoading}>
+                {loading ? "Creating..." : "Create Dare 🚀"}
+              </button>
+            </div>
           </div>
         </div>
       )}

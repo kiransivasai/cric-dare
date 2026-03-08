@@ -224,6 +224,20 @@ export default function ChallengePage() {
             </div>
           )}
 
+          {/* Show Participants if creator OR already submitted */}
+          {(isCreator || myPick || submitted) && challenge.participants && challenge.participants.length > 0 && (
+            <div className="participants-section animate-fade-in" style={{ marginTop: "var(--space-xl)", padding: "var(--space-md)", background: "rgba(255,255,255,0.02)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.05)" }}>
+              <h3 style={{ marginBottom: "var(--space-sm)", fontSize: "1rem" }}>👥 Joined Dare ({challenge.participants.length})</h3>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
+                {challenge.participants.map(username => (
+                  <span key={username} style={{ background: "rgba(255,255,255,0.1)", padding: "4px 10px", borderRadius: "100px", fontSize: "0.85rem", color: "var(--clr-text)" }}>
+                    @{username}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Share section for creator */}
           {isCreator && (
             <div className="share-section" style={{ marginTop: "var(--space-xl)", padding: "var(--space-lg)", background: "rgba(255,255,255,0.03)", borderRadius: "var(--radius-lg)", border: "1px solid rgba(255,255,255,0.08)" }}>

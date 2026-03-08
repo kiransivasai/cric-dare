@@ -17,10 +17,13 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Get participant count
-    const participantCount = await Pick.countDocuments({
-      challengeId: challenge._id,
-    });
+    // Get participants directly from the username field
+    const picks = await Pick.find({ challengeId: challenge._id })
+      .select("username")
+      .lean();
+
+    const participants = picks.map((p) => p.username).filter(Boolean);
+    const participantCount = participants.length;
 
     return NextResponse.json({
       challenge: {
@@ -35,6 +38,7 @@ export async function GET(request, { params }) {
         needsManualResolution: challenge.needsManualResolution,
         createdAt: challenge.createdAt,
         participantCount,
+        participants,
       },
     });
   } catch (error) {
